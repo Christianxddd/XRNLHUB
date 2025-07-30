@@ -1,171 +1,152 @@
--- XRNL HUB - PANEL ESTILO ESP PERSONALIZADO
+-- XRNL HUB MOBILE - Estructura idéntica al ESP original
 
-local UserInputService = game:GetService("UserInputService")
-local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
 
--- ÍCONO FLOTANTE (movible)
+-- Función para crear panel usando Rayfield-like
+local function CreateUI()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "XRNL_GUI"
+    ScreenGui.Parent = game:GetService("CoreGui")
+
+    local MainFrame = Instance.new("Frame", ScreenGui)
+    MainFrame.Size = UDim2.new(0, 350, 0, 300)
+    MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+
+    local TabNames = {"GAME", "POPULAR", "UTILIDADES", "CRÉDITOS"}
+    local tabs = {}
+    local contents = {}
+
+    local TabFrame = Instance.new("Frame", MainFrame)
+    TabFrame.Size = UDim2.new(1, 0, 0, 30)
+    TabFrame.BackgroundTransparency = 1
+
+    for i, name in ipairs(TabNames) do
+        local btn = Instance.new("TextButton", TabFrame)
+        btn.Size = UDim2.new(0, 80, 1, 0)
+        btn.Position = UDim2.new(0, (i - 1) * 90, 0, 0)
+        btn.Text = name
+        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 14
+        tabs[name] = btn
+
+        contents[name] = Instance.new("ScrollingFrame", MainFrame)
+        contents[name].Size = UDim2.new(1, -10, 1, -40)
+        contents[name].Position = UDim2.new(0, 5, 0, 35)
+        contents[name].BackgroundTransparency = 1
+        contents[name].CanvasSize = UDim2.new(0, 0, 1, 0)
+        contents[name].ScrollBarThickness = 6
+        contents[name].Visible = false
+
+        local layout = Instance.new("UIListLayout", contents[name])
+        layout.Padding = UDim.new(0, 5)
+    end
+
+    local function ShowTab(name)
+        for _, f in pairs(contents) do f.Visible = false end
+        contents[name].Visible = true
+    end
+
+    for name, btn in pairs(tabs) do
+        btn.MouseButton1Click:Connect(function()
+            ShowTab(name)
+        end)
+    end
+
+    ShowTab("GAME")
+
+    -- Populate sections:
+
+    -- GAME tab
+    local gameTab = contents["GAME"]
+    local games = {
+        {"Teleport Tool", function()
+            loadstring(game:HttpGet("https://pastebin.com/raw/PfA9L6h4"))()
+        end},
+        {"ESP Script", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua"))()
+        end}
+    }
+    for _, item in ipairs(games) do
+        local b = Instance.new("TextButton", gameTab)
+        b.Size = UDim2.new(1, 0, 0, 30); b.Text = item[1]
+        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
+        b.Font = Enum.Font.Gotham; b.TextSize = 14
+        b.MouseButton1Click:Connect(item[2])
+    end
+
+    -- POPULAR tab
+    local popTab = contents["POPULAR"]
+    local popular = {
+        {"Blox Fruits", "https://raw.githubusercontent.com/Christianxddd/BLOXFRUITS-HEAD/main/main.lua"},
+        {"Jailbreak", "https://raw.githubusercontent.com/Christianxddd/JAILBREAK/main.lua"},
+        {"King Legacy", "https://raw.githubusercontent.com/Christianxddd/KL/main/main.lua"}
+    }
+    for _, v in ipairs(popular) do
+        local b = Instance.new("TextButton", popTab)
+        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
+        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
+        b.Font = Enum.Font.Gotham; b.TextSize = 14
+        b.MouseButton1Click:Connect(function() loadstring(game:HttpGet(v[2]))() end)
+    end
+
+    -- UTILIDADES tab
+    local utilTab = contents["UTILIDADES"]
+    local util = {
+        {"Fly", "https://pastebin.com/raw/7H2k3S0v"},
+        {"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}
+    }
+    for _, v in ipairs(util) do
+        local b = Instance.new("TextButton", utilTab)
+        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
+        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
+        b.Font = Enum.Font.Gotham; b.TextSize = 14
+        b.MouseButton1Click:Connect(function() loadstring(game:HttpGet(v[2]))() end)
+    end
+
+    -- CRÉDITOS tab
+    local creditTab = contents["CRÉDITOS"]
+    local credits = {
+        {"TikTok: @Christianxddd", "https://www.tiktok.com/@Christianxddd"},
+        {"Instagram: @Christianxddd", "https://www.instagram.com/Christianxddd"}
+    }
+    for _, v in ipairs(credits) do
+        local b = Instance.new("TextButton", creditTab)
+        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
+        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
+        b.Font = Enum.Font.Gotham; b.TextSize = 14
+        b.MouseButton1Click:Connect(function() setclipboard(v[2]) end)
+    end
+end
+
+-- Ícono flotante
+local core = game:GetService("CoreGui")
 local icon = Instance.new("ImageButton")
-icon.Name = "XRNL_Icon"
-icon.Size = UDim2.new(0, 50, 0, 50)
-icon.Position = UDim2.new(0, 20, 0, 300)
-icon.Image = "rbxassetid://120008128829681" -- Tu icono personalizado
+icon.Size = UDim2.new(0, 40, 0, 40)
+icon.Position = UDim2.new(0, 10, 0.5, -20)
+icon.CanvasSize = UDim2.new(0,0,0,0)
 icon.BackgroundTransparency = 1
+icon.Image = "rbxassetid://15190936053"
+icon.Parent = core
+icon.ZIndex = 9999
 icon.Draggable = true
-icon.Parent = game.CoreGui
 
--- PANEL PRINCIPAL
-local panel = Instance.new("Frame")
-panel.Name = "XRNL_Panel"
-panel.Size = UDim2.new(0, 400, 0, 300)
-panel.Position = UDim2.new(0.5, -200, 0.5, -150)
-panel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-panel.BorderSizePixel = 0
-panel.Visible = false
-panel.Active = true
-panel.Draggable = true
-panel.Parent = game.CoreGui
-
--- TÍTULO
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "XRNL HUB"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.Parent = panel
-
--- PESTAÑAS
-local tabs = {"GAME", "POPULAR", "UTILIDADES", "CRÉDITOS"}
-local tabButtons = {}
-local currentTab = nil
-
-local tabFrame = Instance.new("Frame")
-tabFrame.Size = UDim2.new(1, 0, 0, 30)
-tabFrame.Position = UDim2.new(0, 0, 0, 30)
-tabFrame.BackgroundTransparency = 1
-tabFrame.Parent = panel
-
-for i, name in ipairs(tabs) do
-	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(0, 100, 1, 0)
-	button.Position = UDim2.new(0, (i - 1) * 100, 0, 0)
-	button.Text = name
-	button.Name = name
-	button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-	button.TextColor3 = Color3.fromRGB(255, 255, 255)
-	button.Font = Enum.Font.Gotham
-	button.TextSize = 14
-	button.Parent = tabFrame
-	tabButtons[name] = button
-end
-
--- ÁREA DE CONTENIDO
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -10, 1, -70)
-content.Position = UDim2.new(0, 5, 0, 65)
-content.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-content.BorderSizePixel = 0
-content.ClipsDescendants = true
-content.Parent = panel
-
--- FUNCIONES DE CAMBIO DE PESTAÑA
-local function clearContent()
-	for _, c in ipairs(content:GetChildren()) do
-		if not c:IsA("UIListLayout") then
-			c:Destroy()
-		end
-	end
-end
-
-local function showTab(tabName)
-	currentTab = tabName
-	clearContent()
-	
-	if tabName == "GAME" then
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.new(1, 0, 0, 40)
-		label.Text = "Bienvenido a XRNL HUB"
-		label.BackgroundTransparency = 1
-		label.TextColor3 = Color3.new(1, 1, 1)
-		label.TextScaled = true
-		label.Font = Enum.Font.GothamBold
-		label.Parent = content
-	
-	elseif tabName == "POPULAR" then
-		local scripts = {
-			{"Blox Fruits", "https://raw.githubusercontent.com/Christianxddd/BLOXFRUITS-HEAD/main/main.lua"},
-			{"Jailbreak", "https://raw.githubusercontent.com/Christianxddd/JAILBREAK/main/main.lua"},
-			{"King Legacy", "https://raw.githubusercontent.com/Christianxddd/KL/main/main.lua"},
-			{"Da Hood", "https://raw.githubusercontent.com/Christianxddd/DaHood/main.lua"}
-		}
-		for _, s in pairs(scripts) do
-			local btn = Instance.new("TextButton")
-			btn.Size = UDim2.new(1, 0, 0, 30)
-			btn.Text = s[1]
-			btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			btn.TextColor3 = Color3.new(1, 1, 1)
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 14
-			btn.MouseButton1Click:Connect(function()
-				loadstring(game:HttpGet(s[2]))()
-			end)
-			btn.Parent = content
-		end
-
-	elseif tabName == "UTILIDADES" then
-		local utils = {
-			{"Fly", "https://raw.githubusercontent.com/InfinityHubScript/Fly/main/Fly.txt"},
-			{"TP Tool", "https://pastebin.com/raw/PfA9L6h4"},
-			{"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}
-		}
-		for _, u in pairs(utils) do
-			local btn = Instance.new("TextButton")
-			btn.Size = UDim2.new(1, 0, 0, 30)
-			btn.Text = u[1]
-			btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			btn.TextColor3 = Color3.new(1, 1, 1)
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 14
-			btn.MouseButton1Click:Connect(function()
-				loadstring(game:HttpGet(u[2]))()
-			end)
-			btn.Parent = content
-		end
-
-	elseif tabName == "CRÉDITOS" then
-		local links = {
-			{"TikTok - @Christianxddd", "https://www.tiktok.com/@Christianxddd"},
-			{"Instagram - @Christianxddd", "https://www.instagram.com/Christianxddd"}
-		}
-		for _, link in pairs(links) do
-			local btn = Instance.new("TextButton")
-			btn.Size = UDim2.new(1, 0, 0, 30)
-			btn.Text = link[1]
-			btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			btn.TextColor3 = Color3.new(1, 1, 1)
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 14
-			btn.MouseButton1Click:Connect(function()
-				setclipboard(link[2])
-			end)
-			btn.Parent = content
-		end
-	end
-end
-
--- BOTONES DE PESTAÑAS
-for tabName, button in pairs(tabButtons) do
-	button.MouseButton1Click:Connect(function()
-		showTab(tabName)
-	end)
-end
-
--- MOSTRAR PANEL AL TOCAR ICONO
+local opened = false
 icon.MouseButton1Click:Connect(function()
-	panel.Visible = not panel.Visible
+    if opened then
+        for _,v in pairs(core:GetChildren()) do
+            if v.Name == "XRNL_GUI" then v:Destroy() end
+        end
+        opened = false
+    else
+        CreateUI()
+        opened = true
+    end
 end)
-
--- INICIALIZA PESTAÑA
-showTab("GAME")
