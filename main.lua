@@ -1,152 +1,139 @@
--- XRNL HUB MOBILE - Estructura idéntica al ESP original
-
+local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
+local player = Players.LocalPlayer
 
--- Función para crear panel usando Rayfield-like
-local function CreateUI()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "XRNL_GUI"
-    ScreenGui.Parent = game:GetService("CoreGui")
+-- Crear ícono flotante
+local icon = Instance.new("ImageButton")
+icon.Name = "OpenXRNL"
+icon.Size = UDim2.new(0, 60, 0, 60)
+icon.Position = UDim2.new(0, 20, 0.5, -30)
+icon.BackgroundTransparency = 1
+icon.Image = "rbxassetid://7733960981" -- Ícono estilo XRNL
+icon.Parent = game.CoreGui
 
-    local MainFrame = Instance.new("Frame", ScreenGui)
-    MainFrame.Size = UDim2.new(0, 350, 0, 300)
-    MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Active = true
-    MainFrame.Draggable = true
+-- Crear el panel principal (inicialmente oculto)
+local main = Instance.new("ScreenGui", game.CoreGui)
+main.Name = "XRNL_GUI"
+main.ResetOnSpawn = false
 
-    local TabNames = {"GAME", "POPULAR", "UTILIDADES", "CRÉDITOS"}
-    local tabs = {}
-    local contents = {}
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 420, 0, 340)
+frame.Position = UDim2.new(0.5, -210, 0.5, -170)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BorderSizePixel = 0
+frame.Visible = false
+frame.Active = true
+frame.Draggable = true
+frame.Parent = main
 
-    local TabFrame = Instance.new("Frame", MainFrame)
-    TabFrame.Size = UDim2.new(1, 0, 0, 30)
-    TabFrame.BackgroundTransparency = 1
+local title = Instance.new("TextLabel", frame)
+title.Text = "XRNL HUB"
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
 
-    for i, name in ipairs(TabNames) do
-        local btn = Instance.new("TextButton", TabFrame)
-        btn.Size = UDim2.new(0, 80, 1, 0)
-        btn.Position = UDim2.new(0, (i - 1) * 90, 0, 0)
-        btn.Text = name
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.Font = Enum.Font.Gotham
-        btn.TextSize = 14
-        tabs[name] = btn
+-- Sección de botones de pestañas
+local tabFrame = Instance.new("Frame", frame)
+tabFrame.Size = UDim2.new(1, 0, 0, 40)
+tabFrame.Position = UDim2.new(0, 0, 0, 40)
+tabFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 
-        contents[name] = Instance.new("ScrollingFrame", MainFrame)
-        contents[name].Size = UDim2.new(1, -10, 1, -40)
-        contents[name].Position = UDim2.new(0, 5, 0, 35)
-        contents[name].BackgroundTransparency = 1
-        contents[name].CanvasSize = UDim2.new(0, 0, 1, 0)
-        contents[name].ScrollBarThickness = 6
-        contents[name].Visible = false
+local tabs = {"Games", "Utilidades", "Créditos"}
+local tabButtons = {}
+local sections = {}
 
-        local layout = Instance.new("UIListLayout", contents[name])
-        layout.Padding = UDim.new(0, 5)
-    end
+for i, tabName in ipairs(tabs) do
+	local button = Instance.new("TextButton", tabFrame)
+	button.Size = UDim2.new(0, 140, 1, 0)
+	button.Position = UDim2.new(0, (i-1)*140, 0, 0)
+	button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	button.Text = tabName
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Font = Enum.Font.Gotham
+	button.TextSize = 14
+	tabButtons[tabName] = button
 
-    local function ShowTab(name)
-        for _, f in pairs(contents) do f.Visible = false end
-        contents[name].Visible = true
-    end
+	local section = Instance.new("Frame", frame)
+	section.Size = UDim2.new(1, -20, 1, -100)
+	section.Position = UDim2.new(0, 10, 0, 90)
+	section.Visible = false
+	section.BackgroundTransparency = 1
+	sections[tabName] = section
 
-    for name, btn in pairs(tabs) do
-        btn.MouseButton1Click:Connect(function()
-            ShowTab(name)
-        end)
-    end
-
-    ShowTab("GAME")
-
-    -- Populate sections:
-
-    -- GAME tab
-    local gameTab = contents["GAME"]
-    local games = {
-        {"Teleport Tool", function()
-            loadstring(game:HttpGet("https://pastebin.com/raw/PfA9L6h4"))()
-        end},
-        {"ESP Script", function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua"))()
-        end}
-    }
-    for _, item in ipairs(games) do
-        local b = Instance.new("TextButton", gameTab)
-        b.Size = UDim2.new(1, 0, 0, 30); b.Text = item[1]
-        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
-        b.Font = Enum.Font.Gotham; b.TextSize = 14
-        b.MouseButton1Click:Connect(item[2])
-    end
-
-    -- POPULAR tab
-    local popTab = contents["POPULAR"]
-    local popular = {
-        {"Blox Fruits", "https://raw.githubusercontent.com/Christianxddd/BLOXFRUITS-HEAD/main/main.lua"},
-        {"Jailbreak", "https://raw.githubusercontent.com/Christianxddd/JAILBREAK/main.lua"},
-        {"King Legacy", "https://raw.githubusercontent.com/Christianxddd/KL/main/main.lua"}
-    }
-    for _, v in ipairs(popular) do
-        local b = Instance.new("TextButton", popTab)
-        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
-        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
-        b.Font = Enum.Font.Gotham; b.TextSize = 14
-        b.MouseButton1Click:Connect(function() loadstring(game:HttpGet(v[2]))() end)
-    end
-
-    -- UTILIDADES tab
-    local utilTab = contents["UTILIDADES"]
-    local util = {
-        {"Fly", "https://pastebin.com/raw/7H2k3S0v"},
-        {"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}
-    }
-    for _, v in ipairs(util) do
-        local b = Instance.new("TextButton", utilTab)
-        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
-        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
-        b.Font = Enum.Font.Gotham; b.TextSize = 14
-        b.MouseButton1Click:Connect(function() loadstring(game:HttpGet(v[2]))() end)
-    end
-
-    -- CRÉDITOS tab
-    local creditTab = contents["CRÉDITOS"]
-    local credits = {
-        {"TikTok: @Christianxddd", "https://www.tiktok.com/@Christianxddd"},
-        {"Instagram: @Christianxddd", "https://www.instagram.com/Christianxddd"}
-    }
-    for _, v in ipairs(credits) do
-        local b = Instance.new("TextButton", creditTab)
-        b.Size = UDim2.new(1,0,0,30); b.Text = v[1]
-        b.BackgroundColor3 = Color3.fromRGB(45,45,45); b.TextColor3 = Color3.new(1,1,1)
-        b.Font = Enum.Font.Gotham; b.TextSize = 14
-        b.MouseButton1Click:Connect(function() setclipboard(v[2]) end)
-    end
+	button.MouseButton1Click:Connect(function()
+		for _, s in pairs(sections) do
+			s.Visible = false
+		end
+		section.Visible = true
+	end)
 end
 
--- Ícono flotante
-local core = game:GetService("CoreGui")
-local icon = Instance.new("ImageButton")
-icon.Size = UDim2.new(0, 40, 0, 40)
-icon.Position = UDim2.new(0, 10, 0.5, -20)
-icon.CanvasSize = UDim2.new(0,0,0,0)
-icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://15190936053"
-icon.Parent = core
-icon.ZIndex = 9999
-icon.Draggable = true
+-- Contenido para cada sección
+do
+	-- Games
+	local label = Instance.new("TextLabel", sections["Games"])
+	label.Size = UDim2.new(1, 0, 0, 30)
+	label.Text = "Blox Fruits, Jailbreak, etc"
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 16
+end
 
-local opened = false
+do
+	-- Utilidades
+	local fly = Instance.new("TextButton", sections["Utilidades"])
+	fly.Size = UDim2.new(0, 120, 0, 30)
+	fly.Position = UDim2.new(0, 0, 0, 0)
+	fly.Text = "Fly"
+	fly.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	fly.TextColor3 = Color3.new(1, 1, 1)
+	fly.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/InfinityHubScripts/FlyScript/main/fly.lua"))()
+	end)
+
+	local esp = Instance.new("TextButton", sections["Utilidades"])
+	esp.Size = UDim2.new(0, 120, 0, 30)
+	esp.Position = UDim2.new(0, 0, 0, 40)
+	esp.Text = "ESP"
+	esp.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	esp.TextColor3 = Color3.new(1, 1, 1)
+	esp.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/wa0101/Roblox-ESP/refs/heads/main/esp.lua"))()
+	end)
+end
+
+do
+	-- Créditos
+	local credit1 = Instance.new("TextButton", sections["Créditos"])
+	credit1.Size = UDim2.new(0, 200, 0, 30)
+	credit1.Text = "TikTok: @christianxrnl"
+	credit1.Position = UDim2.new(0, 0, 0, 0)
+	credit1.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	credit1.TextColor3 = Color3.new(1, 1, 1)
+	credit1.MouseButton1Click:Connect(function()
+		setclipboard("https://tiktok.com/@christianxrnl")
+	end)
+
+	local credit2 = Instance.new("TextButton", sections["Créditos"])
+	credit2.Size = UDim2.new(0, 200, 0, 30)
+	credit2.Text = "Instagram: @christianxrnl"
+	credit2.Position = UDim2.new(0, 0, 0, 40)
+	credit2.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	credit2.TextColor3 = Color3.new(1, 1, 1)
+	credit2.MouseButton1Click:Connect(function()
+		setclipboard("https://instagram.com/christianxrnl")
+	end)
+end
+
+-- Mostrar sección por defecto
+sections["Games"].Visible = true
+
+-- Alternar visibilidad del panel al tocar el ícono
+local panelVisible = false
 icon.MouseButton1Click:Connect(function()
-    if opened then
-        for _,v in pairs(core:GetChildren()) do
-            if v.Name == "XRNL_GUI" then v:Destroy() end
-        end
-        opened = false
-    else
-        CreateUI()
-        opened = true
-    end
+	panelVisible = not panelVisible
+	frame.Visible = panelVisible
 end)
