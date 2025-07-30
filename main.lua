@@ -8,7 +8,7 @@ icon.Name = "OpenXRNL"
 icon.Size = UDim2.new(0, 60, 0, 60)
 icon.Position = UDim2.new(0, 20, 0.5, -30)
 icon.BackgroundTransparency = 1
-icon.Image = "rbxassetid://7733960981" -- Ícono estilo XRNL
+icon.Image = "rbxassetid://120008128829681" -- Ícono estilo XRNL
 icon.Parent = game.CoreGui
 
 -- Crear el panel principal (inicialmente oculto)
